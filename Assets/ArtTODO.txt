@@ -1,8 +1,8 @@
 Characters:
-Knight,
-Bard,
-Blacksmith,
-Navigator
+Knight (tan),
+Bard (white),
+Blacksmith (tan),
+Navigator (elf - skin is light green)
 
 Character sprite sizes:
 large (170x170) 
