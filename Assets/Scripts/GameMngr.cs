@@ -9,6 +9,9 @@ public class GameMngr : MonoBehaviour
     public List<CharacterData> teammates; // the 4 NPCs, same list ShopMngr used
     public StatBlock playerStats;         // from StatAllocator
     public List<CharacterData> imposters = new List<CharacterData>(); // exactly 2
+    public int trust = 10;
+    public int trustCap = 20;
+    public int gold = 2000;
 
     void Awake()
     {
@@ -37,4 +40,18 @@ public class GameMngr : MonoBehaviour
     }
 
     public bool IsImposter(CharacterData character) => imposters.Contains(character);
+
+    public void AdjustTrust(int amount)
+    {
+        trust = Mathf.Clamp(trust + amount, 0, trustCap);
+        if (trust <= 0)
+        {
+            // TODO: trigger bad ending
+        }
+    }
+
+    public void AddGold(int amount)
+    {
+        gold += amount;
+    }
 }
