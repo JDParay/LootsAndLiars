@@ -8,9 +8,9 @@ public class Phase1 : MonoBehaviour
 {
     public List<TaskSlot> tasks; // 3 entries: Fight(2), Loot(2), Wagon(1)
     public Button submitButton;
-    public TMP_Text logBox; // or a scrollable log — TMP_Text appended for prototype
+    public TMP_Text logBox;
 
-    private List<CharacterData> roster; // teammates + a placeholder "You" entry not needed if player also assignable
+    private List<CharacterData> roster;
     private List<string> allNames;
 
     void Start()
@@ -128,7 +128,6 @@ public class Phase1 : MonoBehaviour
 
         Log("Tasks submitted. Resolving...");
         // TODO: Phase 1 → Phase 2 resolution (stat-roll, imposter chance, log output)
-        // This is the next chunk we'll build.
     }
 
     void Log(string message)
