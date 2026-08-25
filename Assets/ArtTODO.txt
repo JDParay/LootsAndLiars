@@ -1,0 +1,9 @@
+Characters:
+Knight,
+Bard,
+Blacksmith,
+Navigator
+
+Character sprite sizes:
+large (170x170) 
+small (100x100)
