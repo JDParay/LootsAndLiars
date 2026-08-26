@@ -13,11 +13,17 @@ for small sprites, can they all have the same color? in terms of hue
 
 UI: 
 - a 64x64 box i can turn into a 9-slice sprite
-- title screen? I'll do a concept of this soon
+- title screen? (I'll do a concept of this soon)
+concept: https://drive.google.com/file/d/1aH2tByQSH0vheg1esz2fuVVvsFYf7Rum/view?usp=sharing
 
 shop assets:
 potion - red, yellow, lime, and violet (same bottle for all, literally just change the color)
+
 potion+ - same colors, same bottles, add sparkles outside bottle
 bottle ref: https://drive.google.com/file/d/1EuOVjj2TrFKFKqtdJiVZmqVmBiNhsSAR/view?usp=sharing
+
 Tangy berry - similar to this (https://genshin-impact.fandom.com/wiki/Berry)?
+
 Berry Soda - cherry coke
+
+all of the shop asset will have a sale sticker. every potion is "200G", every potion+ will be "500G", Tangy Berry "1000G" and Berry Soda "1500G"
