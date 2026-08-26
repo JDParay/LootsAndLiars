@@ -7,17 +7,28 @@ using TMPro;
 
 public class Phase1 : MonoBehaviour
 {
+    [Header("Tasks")]
     public List<TaskSlot> tasks;
+
+    [Header("Action Box")]
+    public GameObject actionBox1;
     public Button actionButton;
     public TMP_Text actionButtonLabel;
-    public LogBox logBox;
+    public Button kickButton;
+
+    [Header("Task Sequence UI")]
     public GameObject taskUIRoot;
     public GameObject doingTaskText;
     public TaskTimerUI timerUI;
-    public GameObject actionBox1;
-    public Button kickButton;
+
+    [Header("Log")]
+    public LogBox logBox;
+
+    [Header("Cross-Phase References")]
     public Phase2 phase2Manager;
     public KickMngr kickManager;
+
+    // ---- Private / internal state below, unchanged ----
 
     string[] flavorLines = {
         "The wagon creaks forward...",

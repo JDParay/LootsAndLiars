@@ -28,13 +28,22 @@ public class Phase2 : MonoBehaviour
 
         for (int i = 0; i < suspectToggles.Length; i++)
         {
-            var teammate = roster[i];
-            var label = suspectToggles[i].GetComponentInChildren<TMP_Text>();
-            if (label != null) label.text = teammate.characterName;
+            if (i < roster.Count)
+            {
+                suspectToggles[i].gameObject.SetActive(true);
 
-            suspectToggles[i].onValueChanged.RemoveAllListeners();
-            suspectToggles[i].isOn = false;
-            suspectToggles[i].onValueChanged.AddListener(_ => OnMarkToggleChanged());
+                var teammate = roster[i];
+                var label = suspectToggles[i].GetComponentInChildren<TMP_Text>();
+                if (label != null) label.text = teammate.characterName;
+
+                suspectToggles[i].onValueChanged.RemoveAllListeners();
+                suspectToggles[i].isOn = false;
+                suspectToggles[i].onValueChanged.AddListener(_ => OnMarkToggleChanged());
+            }
+            else
+            {
+                suspectToggles[i].gameObject.SetActive(false);
+            }
         }
 
         skipToggle.onValueChanged.RemoveAllListeners();
@@ -86,7 +95,7 @@ public class Phase2 : MonoBehaviour
         if (!skipToggle.isOn)
         {
             var marked = new List<CharacterData>();
-            for (int i = 0; i < suspectToggles.Length; i++)
+            for (int i = 0; i < roster.Count; i++) // changed from suspectToggles.Length
             {
                 if (suspectToggles[i].isOn)
                     marked.Add(roster[i]);
@@ -105,7 +114,6 @@ public class Phase2 : MonoBehaviour
             logBox.Log("No one was marked tonight.");
         }
 
-        // Re-enable toggles for next time this phase runs
         foreach (var t in suspectToggles) t.interactable = true;
 
         phase2Panel.SetActive(false);
