@@ -6,12 +6,17 @@ public class GameMngr : MonoBehaviour
 {
     public static GameMngr Instance;
 
-    public List<CharacterData> teammates; // the 4 NPCs, same list ShopMngr used
-    public StatBlock playerStats;         // from StatAllocator
+    public List<CharacterData> teammates;
+    public StatBlock playerStats;         
     public List<CharacterData> imposters = new List<CharacterData>(); // exactly 2
+    public List<CharacterData> markedTonight = new List<CharacterData>();
+    public bool hasCompletedFirstPhase2 = false;
+    public bool hasKickedToday = false;
+    public List<CharacterData> kickedMembers = new List<CharacterData>();
     public int trust = 10;
     public int trustCap = 20;
     public int gold = 2000;
+    public int currentDay = 0;
 
     void Awake()
     {
@@ -28,6 +33,10 @@ public class GameMngr : MonoBehaviour
     {
         teammates = shopTeammates;
         playerStats = finalPlayerStats;
+        currentDay = 0;
+        trust = 10;
+        gold = 2000;
+        markedTonight.Clear();
         AssignImposters();
     }
 
@@ -54,4 +63,25 @@ public class GameMngr : MonoBehaviour
     {
         gold += amount;
     }
+
+    public void MarkSuspect(CharacterData character)
+    {
+        if (!markedTonight.Contains(character))
+            markedTonight.Add(character);
+    }
+
+    public bool IsMarked(CharacterData character) => markedTonight.Contains(character);
+
+    public void ClearMarksForNewDay()
+    {
+        markedTonight.Clear();
+    }
+
+    public void KickMember(CharacterData character)
+    {
+        if (!kickedMembers.Contains(character))
+            kickedMembers.Add(character);
+    }
+
+    public bool IsKicked(CharacterData character) => kickedMembers.Contains(character);
 }

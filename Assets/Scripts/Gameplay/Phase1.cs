@@ -7,12 +7,17 @@ using TMPro;
 
 public class Phase1 : MonoBehaviour
 {
-    public List<TaskSlot> tasks; // 3 entries: Fight(2), Loot(2), Wagon(1)
-    public Button submitButton;
+    public List<TaskSlot> tasks;
+    public Button actionButton;
+    public TMP_Text actionButtonLabel;
     public LogBox logBox;
-    public GameObject taskUIRoot;    
-    public GameObject doingTaskText;   
-    public TaskTimerUI timerUI;        
+    public GameObject taskUIRoot;
+    public GameObject doingTaskText;
+    public TaskTimerUI timerUI;
+    public GameObject actionBox1;
+    public Button kickButton;
+    public Phase2 phase2Manager;
+    public KickMngr kickManager;
 
     string[] flavorLines = {
         "The wagon creaks forward...",
@@ -21,6 +26,7 @@ public class Phase1 : MonoBehaviour
         "Footsteps crunch over gravel.",
         "The fire crackles behind you."
     };
+    private Coroutine flavorLoopHandle;
 
     private List<CharacterData> roster;
     private List<string> allNames;
@@ -31,8 +37,18 @@ public class Phase1 : MonoBehaviour
 
     void Start()
     {
-        roster = GameMngr.Instance.teammates;
+        kickButton.onClick.AddListener(OnKickButtonPressed);
+        kickButton.interactable = false;
 
+        actionButton.onClick.AddListener(OnSubmitPressed);
+        actionButtonLabel.text = "Submit";
+
+        RefreshRosterAndDropdowns();
+    }
+
+    void RefreshRosterAndDropdowns()
+    {
+        roster = GameMngr.Instance.teammates.Where(c => !GameMngr.Instance.IsKicked(c)).ToList();
         allNames = roster.Select(c => c.characterName).ToList();
         allNames.Add("You");
 
@@ -42,13 +58,13 @@ public class Phase1 : MonoBehaviour
             {
                 dd.ClearOptions();
                 dd.AddOptions(new List<string> { "--Select--" }.Concat(allNames).ToList());
+                dd.onValueChanged.RemoveAllListeners();
 
-                var capturedDropdown = dd; // capture for closure
+                var capturedDropdown = dd;
                 dd.onValueChanged.AddListener(_ => OnAnySelectionChanged(capturedDropdown));
             }
         }
 
-        submitButton.onClick.AddListener(OnSubmitPressed);
         RefreshAll();
     }
 
@@ -83,7 +99,7 @@ public class Phase1 : MonoBehaviour
             UpdateTaskTimeLabel(task);
         }
 
-        submitButton.interactable = IsValidAssignment();
+        actionButton.interactable = IsValidAssignment();
     }
 
     StatBlock GetStatsFor(string name)
@@ -135,22 +151,22 @@ public class Phase1 : MonoBehaviour
         return type.ToString();
     }
 
-    // ---- Validation ----
+    // ---- Validation: now allows exactly (5 - allNames.Count) slots to stay unfilled ----
     bool IsValidAssignment()
     {
-        var allSelected = new List<string>();
+        var filledSelections = new List<string>();
 
         foreach (var task in tasks)
         {
-            var names = task.dropdowns.Select(dd => dd.options[dd.value].text).ToList();
-
-            if (names.Any(n => n == "--Select--")) return false; // must be fully filled
-            allSelected.AddRange(names);
+            var filled = task.dropdowns
+                .Select(dd => dd.options[dd.value].text)
+                .Where(n => n != "--Select--")
+                .ToList();
+            filledSelections.AddRange(filled);
         }
 
-        // no repeats anywhere, and every name in the roster+player must appear exactly once
-        if (allSelected.Distinct().Count() != allSelected.Count) return false;
-        if (allSelected.Count != allNames.Count) return false;
+        if (filledSelections.Distinct().Count() != filledSelections.Count) return false; // no duplicates
+        if (filledSelections.Count != allNames.Count) return false; // everyone still in the party must be placed exactly once
 
         return true;
     }
@@ -173,15 +189,20 @@ public class Phase1 : MonoBehaviour
 
         logBox.Log("Tasks submitted. Resolving...");
 
-        // Sprinkle flavor lines while the timer runs
-        StartCoroutine(FlavorLineLoop());
+        flavorLoopHandle = StartCoroutine(FlavorLineLoop());
 
         yield return StartCoroutine(timerUI.RunTimer(displaySeconds: 20, realSeconds: 10));
 
-        StopCoroutine(FlavorLineLoop()); // stop spawning new flavor once timer ends
+        if (flavorLoopHandle != null)
+        {
+            StopCoroutine(flavorLoopHandle);
+            flavorLoopHandle = null;
+        }
+
         doingTaskText.SetActive(false);
 
-        ResolveAllTasks(); // next chunk — the actual tier/log math
+        ResolveAllTasks();
+        ShowPhase2Button();
     }
 
     IEnumerator FlavorLineLoop()
@@ -199,7 +220,6 @@ public class Phase1 : MonoBehaviour
         if (stats == null) return 0;
 
         int fullValue = stats.Get(type);
-
         float nonUseChance = 0.35f;
 
         if (name != "You")
@@ -222,13 +242,10 @@ public class Phase1 : MonoBehaviour
     TaskTier GetTier(float baseTime, float finishedTime)
     {
         float reduction = (baseTime - finishedTime) / baseTime;
-
-        if (reduction >= 0.5f) return TaskTier.Success;   // finished at or under half the base time
-        if (reduction >= 0.25f) return TaskTier.Mediocre; // finished at or under 75% of base time
-        return TaskTier.Fail;                              // anything worse, including 0% or negative
+        if (reduction >= 0.5f) return TaskTier.Success;
+        if (reduction >= 0.25f) return TaskTier.Mediocre;
+        return TaskTier.Fail;
     }
-
-    // === Resolving Tasks ===
 
     void ResolveAllTasks()
     {
@@ -237,37 +254,24 @@ public class Phase1 : MonoBehaviour
 
         foreach (var task in tasks)
         {
-            var names = task.dropdowns
-                .Select(dd => dd.options[dd.value].text)
-                .ToList();
+            var names = task.dropdowns.Select(dd => dd.options[dd.value].text).ToList();
 
             switch (task.type)
             {
-                case TaskType.FightMonsters:
-                    ResolveFight(task, names);
-                    break;
-                case TaskType.CollectLoot:
-                    ResolveLoot(task, names);
-                    break;
-                case TaskType.FixWagon:
-                    ResolveWagon(task, names);
-                    break;
+                case TaskType.FightMonsters: ResolveFight(task, names); break;
+                case TaskType.CollectLoot: ResolveLoot(task, names); break;
+                case TaskType.FixWagon: ResolveWagon(task, names); break;
             }
         }
 
         ApplyDayTrust();
-
-        // TODO: gold total → GameManager
     }
 
     void ResolveFight(TaskSlot task, List<string> names)
     {
         float totalStr = names.Sum(n => GetEffectiveStat(n, StatType.Strength));
         float finished = Mathf.Max(0f, task.baseSeconds - totalStr);
-        var tier = GetTier(task.baseSeconds, finished);
-
-        TrackTier(tier);
-
+        TrackTier(GetTier(task.baseSeconds, finished));
         logBox.Log($"Fighting Monsters ({task.baseSeconds}s): time finished - {finished:0}s");
     }
 
@@ -276,20 +280,13 @@ public class Phase1 : MonoBehaviour
         float totalWis = names.Sum(n => GetEffectiveStat(n, StatType.Wisdom));
         float totalScv = names.Sum(n => GetEffectiveStat(n, StatType.Scavenge));
         float finished = Mathf.Max(0f, task.baseSeconds - totalWis);
-        var tier = GetTier(task.baseSeconds, finished);
-
-        TrackTier(tier);
+        TrackTier(GetTier(task.baseSeconds, finished));
 
         float chestChance = 0.5f + (totalScv / 100f);
         int gold = 0;
-        if (Random.value < chestChance)
-        {
-            gold = Random.Range(200, 601);
-        }
+        if (Random.value < chestChance) gold = Random.Range(200, 601);
 
-        // fold gold into gameplay total
         GameMngr.Instance.AddGold(gold);
-
         logBox.Log($"Collecting Loot/Supplies ({task.baseSeconds}s): time finished - {finished:0}s, Loot: {gold} worth of GOLD");
     }
 
@@ -298,9 +295,7 @@ public class Phase1 : MonoBehaviour
         string name = names[0];
         float haste = GetEffectiveStat(name, StatType.Haste);
         float finished = Mathf.Max(0f, task.baseSeconds - haste);
-        var tier = GetTier(task.baseSeconds, finished);
-
-        TrackTier(tier);
+        TrackTier(GetTier(task.baseSeconds, finished));
 
         string condition;
         if (haste >= 4) condition = "fixed (100%)";
@@ -313,23 +308,75 @@ public class Phase1 : MonoBehaviour
 
     void TrackTier(TaskTier tier)
     {
-        if (tier == TaskTier.Success || tier == TaskTier.Mediocre)
-            successCount++;
-        else
-            failCount++;
+        if (tier == TaskTier.Success || tier == TaskTier.Mediocre) successCount++;
+        else failCount++;
     }
 
     void ApplyDayTrust()
     {
-        int trustChange = 0;
-        trustChange += successCount * 1;
-        trustChange -= failCount * 1;
-
-        if (successCount == 3) trustChange += 3; // all 3 succeeded bonus
-        if (failCount == 3) trustChange -= 1;    // all 3 failed extra penalty
+        int trustChange = successCount - failCount;
+        if (successCount == 3) trustChange += 3;
+        if (failCount == 3) trustChange -= 1;
 
         GameMngr.Instance.AdjustTrust(trustChange);
-
         logBox.Log($"Trust {(trustChange >= 0 ? "+" : "")}{trustChange}");
+    }
+
+    // ---- Kick handoff ----
+    void OnKickButtonPressed()
+    {
+        actionBox1.SetActive(false);
+        kickManager.BeginKickPhase(roster, OnKickPhaseComplete);
+    }
+
+    void OnKickPhaseComplete(bool actuallyKicked)
+    {
+        actionBox1.SetActive(true);
+
+        if (actuallyKicked)
+        {
+            GameMngr.Instance.hasKickedToday = true;
+            kickButton.interactable = false;
+            RefreshRosterAndDropdowns(); // roster shrank, rebuild dropdown options + allNames
+        }
+        // if backed out (actuallyKicked == false), kickButton stays interactable
+    }
+
+    // ---- Phase 2 handoff ----
+    void ShowPhase2Button()
+    {
+        actionButton.onClick.RemoveAllListeners();
+        actionButtonLabel.text = "Next";
+        actionButton.interactable = true;
+        actionButton.onClick.AddListener(GoToPhase2);
+    }
+
+    void GoToPhase2()
+    {
+        actionBox1.SetActive(false);
+        phase2Manager.BeginMarkingPhase(roster, OnPhase2Complete);
+    }
+
+    void OnPhase2Complete()
+    {
+        GameMngr.Instance.hasCompletedFirstPhase2 = true;
+        actionBox1.SetActive(true);
+        StartNewDay();
+    }
+
+    void StartNewDay()
+    {
+        GameMngr.Instance.currentDay++;
+        GameMngr.Instance.hasKickedToday = false;
+
+        RefreshRosterAndDropdowns(); // also resets dropdowns to "--Select--" fresh, accounts for any kicks
+        taskUIRoot.SetActive(true);
+
+        actionButtonLabel.text = "Submit";
+        actionButton.onClick.RemoveAllListeners();
+        actionButton.onClick.AddListener(OnSubmitPressed);
+        actionButton.interactable = false;
+
+        kickButton.interactable = GameMngr.Instance.hasCompletedFirstPhase2 && !GameMngr.Instance.hasKickedToday;
     }
 }
