@@ -297,6 +297,9 @@ MonoBehaviour:
   imposters:
   - {fileID: 0}
   - {fileID: 0}
+  trust: 10
+  trustCap: 20
+  gold: 2000
 --- !u!1 &256468571
 GameObject:
   m_ObjectHideFlags: 0
@@ -5928,8 +5931,8 @@ MonoBehaviour:
   teammates:
   - {fileID: 11400000, guid: e598959f67fa377418e5baea3a8bd613, type: 2}
   - {fileID: 11400000, guid: ff707eca2f447b04e87861ae42bff8a8, type: 2}
-  - {fileID: 11400000, guid: c5325bd97b3c0c049b025f58fc07ccf0, type: 2}
   - {fileID: 11400000, guid: 0ea6fd4c077725f479729be35795690b, type: 2}
+  - {fileID: 11400000, guid: c5325bd97b3c0c049b025f58fc07ccf0, type: 2}
   characterChecker: {fileID: 976239699}
 --- !u!4 &2094282553
 Transform:
