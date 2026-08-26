@@ -7,3 +7,17 @@ Navigator (elf - skin is light green)
 Character sprite sizes:
 large (170x170) 
 small (100x100)
+
+--- ---
+for small sprites, can they all have the same color? in terms of hue
+
+UI: 
+- a 64x64 box i can turn into a 9-slice sprite
+- title screen? I'll do a concept of this soon
+
+shop assets:
+potion - red, yellow, lime, and violet (same bottle for all, literally just change the color)
+potion+ - same colors, same bottles, add sparkles outside bottle
+bottle ref: https://drive.google.com/file/d/1EuOVjj2TrFKFKqtdJiVZmqVmBiNhsSAR/view?usp=sharing
+Tangy berry - similar to this (https://genshin-impact.fandom.com/wiki/Berry)?
+Berry Soda - cherry coke
