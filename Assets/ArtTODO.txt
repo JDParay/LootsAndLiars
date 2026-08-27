@@ -22,8 +22,8 @@ concept: https://drive.google.com/file/d/1aH2tByQSH0vheg1esz2fuVVvsFYf7Rum/view?
 [X] potion+ - same colors, same bottles, add sparkles outside bottle
 bottle ref: https://drive.google.com/file/d/1EuOVjj2TrFKFKqtdJiVZmqVmBiNhsSAR/view?usp=sharing
 
-[ ] Tangy berry - similar to this (https://genshin-impact.fandom.com/wiki/Berry)?
+[X] Tangy berry - similar to this (https://genshin-impact.fandom.com/wiki/Berry)?
 
 [ ] Berry Soda - cherry coke
 
-all of the shop asset will have a sale sticker. every potion is "200G", every potion+ will be "500G", Tangy Berry "1000G" and Berry Soda "1500G"
+[ ] all of the shop asset will have a sale sticker. every potion is "200G", every potion+ will be "500G", Tangy Berry "1000G" and Berry Soda "1500G"
