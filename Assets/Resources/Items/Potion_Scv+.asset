@@ -17,5 +17,5 @@ MonoBehaviour:
   cost: 500
   statsAffected: 03000000
   amountPerStat: 2
-  icon: {fileID: -4473477110862015678, guid: f5cc1dddde5dde009a364e14eac574e4, type: 3}
+  icon: {fileID: 21300000, guid: f5cc1dddde5dde009a364e14eac574e4, type: 3}
   sparkleIcon: {fileID: 21300000, guid: 46b1f8d4e922ba23790a04f518ce1197, type: 3}

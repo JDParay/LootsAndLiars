@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2069036569580e0718282e3a68e54de8
+guid: 0565e03cef3f96c41b524248b3f7c9f9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3996367226045899850
-    second: Bottle-lime_0
+      213: -100600275869216736
+    second: Tangy Berry_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bottle-lime_0
+      name: Tangy Berry_0
       rect:
         serializedVersion: 2
-        x: 30
-        y: 6
-        width: 88
-        height: 136
+        x: 1
+        y: 1
+        width: 69
+        height: 69
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a44aa7481d2f57730800000000000000
-      internalID: 3996367226045899850
+      spriteID: 020528405989a9ef0800000000000000
+      internalID: -100600275869216736
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bottle-lime_0: 3996367226045899850
+      Tangy Berry_0: -100600275869216736
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

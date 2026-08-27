@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2069036569580e0718282e3a68e54de8
+guid: c22375017a332fe4791addcd98eb9689
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3996367226045899850
-    second: Bottle-lime_0
+      213: -3838297404222849373
+    second: 9sliceU_borderlessI_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bottle-lime_0
+      name: 9sliceU_borderlessI_0
       rect:
         serializedVersion: 2
-        x: 30
-        y: 6
-        width: 88
-        height: 136
+        x: 0
+        y: 0
+        width: 280
+        height: 280
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 66, y: 65, z: 65, w: 66}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a44aa7481d2f57730800000000000000
-      internalID: 3996367226045899850
+      spriteID: 3ae3ef6d8d0abbac0800000000000000
+      internalID: -3838297404222849373
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 2c9556b7d7cce644eafac22b62f2f060
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bottle-lime_0: 3996367226045899850
+      9sliceU_borderlessI_0: -3838297404222849373
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

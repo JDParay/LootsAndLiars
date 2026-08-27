@@ -19,5 +19,5 @@ MonoBehaviour:
     haste: 2
     wisdom: 2
     scavenge: 4
-  portrait: {fileID: 6742272758774535463, guid: 8168b5aa9dffa8940881d09491026d3a, type: 3}
-  gameplayPortrait: {fileID: 7573646861943890653, guid: bb4d04d8bb2b50740b24433de8f1c274, type: 3}
+  portrait: {fileID: 21300000, guid: bb4d04d8bb2b50740b24433de8f1c274, type: 3}
+  gameplayPortrait: {fileID: 21300000, guid: bb4d04d8bb2b50740b24433de8f1c274, type: 3}
