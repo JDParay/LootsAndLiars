@@ -17,7 +17,7 @@ UI:
 concept: https://drive.google.com/file/d/1aH2tByQSH0vheg1esz2fuVVvsFYf7Rum/view?usp=sharing
 
 shop assets (150x150 all):
-potion - red, yellow, lime, and violet (same bottle for all, literally just change the color)
+potion - red [X], yellow [X], lime [X], and violet [X] (same bottle for all, literally just change the color)
 
 potion+ - same colors, same bottles, add sparkles outside bottle
 bottle ref: https://drive.google.com/file/d/1EuOVjj2TrFKFKqtdJiVZmqVmBiNhsSAR/view?usp=sharing
