@@ -20,3 +20,4 @@ MonoBehaviour:
     wisdom: 4
     scavenge: 2
   portrait: {fileID: 0}
+  gameplayPortrait: {fileID: -7879004479643136284, guid: 71b5f172f6e613c4091df0dfa314b343, type: 3}

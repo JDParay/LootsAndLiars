@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f5cc1dddde5dde009a364e14eac574e4
+guid: 71b5f172f6e613c4091df0dfa314b343
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4473477110862015678
-    second: Bottle-violet_0
+      213: -7879004479643136284
+    second: Untitled412_20260827080830_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bottle-violet_0
+      name: Untitled412_20260827080830_0
       rect:
         serializedVersion: 2
-        x: 30
-        y: 6
-        width: 88
-        height: 136
+        x: 0
+        y: 0
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2439a38e4440be1c0800000000000000
-      internalID: -4473477110862015678
+      spriteID: 4eec827ab2728a290800000000000000
+      internalID: -7879004479643136284
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bottle-violet_0: -4473477110862015678
+      Untitled412_20260827080830_0: -7879004479643136284
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

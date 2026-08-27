@@ -9,4 +9,5 @@ public class ShopItemData : ScriptableObject
     public StatType[] statsAffected;
     public int amountPerStat = 1;
     public Sprite icon;
+    public Sprite sparkleIcon;
 }

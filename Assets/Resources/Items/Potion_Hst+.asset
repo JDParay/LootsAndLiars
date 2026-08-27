@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2a992cd42d204cb7e4e6402ed5740, type: 3}
   m_Name: Potion_Hst+
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: Haste+ Potion
+  itemName: HST+ Potion
   description: Add +2 to HST
   cost: 500
   statsAffected: 01000000
   amountPerStat: 2
-  icon: {fileID: 569456147263293938, guid: 56ba204008c07cd41a8ed6e07167f88d, type: 3}
+  icon: {fileID: 7948627245645866515, guid: d02d7ad19ee2b837a94f6111a7870c56, type: 3}
+  sparkleIcon: {fileID: 21300000, guid: 46b1f8d4e922ba23790a04f518ce1197, type: 3}

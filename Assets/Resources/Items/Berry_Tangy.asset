@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2a992cd42d204cb7e4e6402ed5740, type: 3}
   m_Name: Berry_Tangy
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: Tangy Berries
+  itemName: Tangy Berry
   description: Add +1 to all Stat
   cost: 1000
   statsAffected: 00000000010000000200000003000000
   amountPerStat: 1
   icon: {fileID: 569456147263293938, guid: 56ba204008c07cd41a8ed6e07167f88d, type: 3}
+  sparkleIcon: {fileID: 21300000, guid: 8b969033f663bbf43b4e122323fb5e2b, type: 3}

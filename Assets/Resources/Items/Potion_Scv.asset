@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2a992cd42d204cb7e4e6402ed5740, type: 3}
   m_Name: Potion_Scv
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: Scavenge Potion
+  itemName: SCV Potion
   description: Add +1 to SCV
   cost: 200
   statsAffected: 03000000
   amountPerStat: 1
-  icon: {fileID: 569456147263293938, guid: 56ba204008c07cd41a8ed6e07167f88d, type: 3}
+  icon: {fileID: -4473477110862015678, guid: f5cc1dddde5dde009a364e14eac574e4, type: 3}
+  sparkleIcon: {fileID: 0}

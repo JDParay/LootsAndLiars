@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2a992cd42d204cb7e4e6402ed5740, type: 3}
   m_Name: Potion_Str+
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: Strength+ Potion
+  itemName: STR+ Potion
   description: Add +2 to STR
   cost: 500
   statsAffected: 00000000
   amountPerStat: 2
-  icon: {fileID: 569456147263293938, guid: 56ba204008c07cd41a8ed6e07167f88d, type: 3}
+  icon: {fileID: -1027351396257092221, guid: 8d9468c5bebbe3827a6cb7f906b9773b, type: 3}
+  sparkleIcon: {fileID: 21300000, guid: 46b1f8d4e922ba23790a04f518ce1197, type: 3}

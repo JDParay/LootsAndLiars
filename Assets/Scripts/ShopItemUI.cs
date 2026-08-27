@@ -5,8 +5,11 @@ using TMPro;
 public class ShopItemUI : MonoBehaviour
 {
     public Image iconImage;
+    public Image sparkleIconImage;
+
     public Button buyButton;
     public TMP_Text buyLabel;
+    public TMP_Text itemNameLabel;
     public GameObject characterPopup;
     public Button[] characterButtons;
     public TMP_Text[] characterLabels;
@@ -20,12 +23,19 @@ public class ShopItemUI : MonoBehaviour
         shopManager = manager;
 
         buyLabel.text = $"Buy it for...";
+        itemNameLabel.text = item.itemName;
         characterPopup.SetActive(false);
 
         if (iconImage != null)
         {
             iconImage.sprite = item.icon;
             iconImage.enabled = item.icon != null;
+        }
+
+        if (sparkleIconImage != null)
+        {
+            sparkleIconImage.sprite = item.sparkleIcon;
+            sparkleIconImage.enabled = item.sparkleIcon != null;
         }
 
         buyButton.onClick.AddListener(ToggleCharacterPopup);
