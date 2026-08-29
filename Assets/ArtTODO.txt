@@ -1,6 +1,6 @@
 Characters:
 [ ] Knight (tan),
-[ ] Bard (white),
+[X] Bard (white),
 [X] Blacksmith (tan),
 [X] Navigator (elf - skin is light green) 
  
