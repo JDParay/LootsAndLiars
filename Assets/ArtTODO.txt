@@ -6,7 +6,7 @@ Characters:
  
 Character sprite sizes:
 large (100x100) 
-small (32x32)
+small (32x32) - probably no time :skull:
 
 --- ---
 for small sprites, can they all have the same color? in terms of hue
@@ -26,4 +26,4 @@ bottle ref: https://drive.google.com/file/d/1EuOVjj2TrFKFKqtdJiVZmqVmBiNhsSAR/vi
 
 [X] Berry Soda - cherry coke
 
-[ ] all of the shop asset will have a sale sticker. every potion is "200G", every potion+ will be "500G", Tangy Berry "1000G" and Berry Soda "1500G"
+[X] all of the shop asset will have a sale sticker. every potion is "200G", every potion+ will be "500G", Tangy Berry "1000G" and Berry Soda "1500G"
