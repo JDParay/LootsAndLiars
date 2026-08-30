@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 public class ShopItemUI : MonoBehaviour
 {
     public Image iconImage;
     public Image sparkleIconImage;
+    public Image PriceIcon;
 
     public Button buyButton;
     public TMP_Text buyLabel;
@@ -36,6 +38,12 @@ public class ShopItemUI : MonoBehaviour
         {
             sparkleIconImage.sprite = item.sparkleIcon;
             sparkleIconImage.enabled = item.sparkleIcon != null;
+        }
+
+        if (PriceIcon != null)
+        {
+            PriceIcon.sprite = item.PriceIcon;
+            PriceIcon.enabled = item.PriceIcon != null;
         }
 
         buyButton.onClick.AddListener(ToggleCharacterPopup);
@@ -76,5 +84,16 @@ public class ShopItemUI : MonoBehaviour
             buyButton.interactable = false;
             buyLabel.text = "Purchased";
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        Debug.Log("Pointer entered");
+        shopManager.ShowDescription(itemData.description);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        shopManager.ClearDescription();
     }
 }

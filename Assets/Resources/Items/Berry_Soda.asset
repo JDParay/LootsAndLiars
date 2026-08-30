@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d2a992cd42d204cb7e4e6402ed5740, type: 3}
   m_Name: Berry_Soda
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: Berry Soda
+  itemName: Juiced Berries
   description: Add +2 to all Stat
   cost: 1500
   statsAffected: 00000000010000000200000003000000
   amountPerStat: 2
-  icon: {fileID: 569456147263293938, guid: 56ba204008c07cd41a8ed6e07167f88d, type: 3}
+  icon: {fileID: -59904685158728093, guid: c056592131e393c4ea5b1581fc810e7b, type: 3}
+  sparkleIcon: {fileID: 0}
+  PriceIcon: {fileID: 21300000, guid: a7a4a81770d899b489965aa7016e08ae, type: 3}

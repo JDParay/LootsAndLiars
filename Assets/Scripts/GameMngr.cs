@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine.Events;
 using System.Linq;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ public class GameMngr : MonoBehaviour
     public bool hasCompletedFirstPhase2 = false;
     public bool hasKickedToday = false;
     public List<CharacterData> kickedMembers = new List<CharacterData>();
+    public UnityEvent<int, int> OnTrustChanged;   
+    public UnityEvent OnTrustDepleted;            
+    private bool trustDepletedFired = false;
     public int trust = 10;
     public int trustCap = 20;
     public int gold = 2000;
@@ -29,7 +33,7 @@ public class GameMngr : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void InitFromShop(List<CharacterData> shopTeammates, StatBlock finalPlayerStats)
+        public void InitFromShop(List<CharacterData> shopTeammates, StatBlock finalPlayerStats)
     {
         teammates = shopTeammates;
         playerStats = finalPlayerStats;
@@ -38,6 +42,8 @@ public class GameMngr : MonoBehaviour
         gold = 2000;
         markedTonight.Clear();
         AssignImposters();
+        OnTrustChanged?.Invoke(trust, trustCap);   
+        trustDepletedFired = false;                
     }
 
     void AssignImposters()
@@ -50,12 +56,15 @@ public class GameMngr : MonoBehaviour
 
     public bool IsImposter(CharacterData character) => imposters.Contains(character);
 
-    public void AdjustTrust(int amount)
+        public void AdjustTrust(int amount)
     {
         trust = Mathf.Clamp(trust + amount, 0, trustCap);
-        if (trust <= 0)
+        OnTrustChanged?.Invoke(trust, trustCap);
+
+        if (trust <= 0 && !trustDepletedFired)
         {
-            // TODO: trigger bad ending
+            trustDepletedFired = true;
+            OnTrustDepleted?.Invoke();
         }
     }
 

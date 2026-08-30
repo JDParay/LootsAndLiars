@@ -19,3 +19,4 @@ MonoBehaviour:
   amountPerStat: 1
   icon: {fileID: 21300000, guid: 2069036569580e0718282e3a68e54de8, type: 3}
   sparkleIcon: {fileID: 0}
+  PriceIcon: {fileID: 21300000, guid: bd0017985a9d65f418f39fa4faf0015b, type: 3}

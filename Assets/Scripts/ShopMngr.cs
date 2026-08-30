@@ -9,6 +9,7 @@ public class ShopMngr : MonoBehaviour
     public StatAllocator statAllocator;
     public Button nextSceneButton;
     public string gameplaySceneName = "Gameplay";
+    public TMP_Text itemDescriptionText;
     public int startingGold = 2000;
     private int currentGold;
 
@@ -107,4 +108,14 @@ public class ShopMngr : MonoBehaviour
     }
 
     public int GetRemainingGold() => currentGold;
+
+    public void ShowDescription(string description)
+    {
+        itemDescriptionText.text = description;
+    }
+
+    public void ClearDescription()
+    {
+        itemDescriptionText.text = "Hover an item to see its effect!";
+    }
 }

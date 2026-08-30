@@ -11,9 +11,9 @@ public class StatBox : MonoBehaviour
 
     public void SetCharacter(CharacterData data)
     {
-        strLabel.text = $"STR:\t{data.runtimeStats.strength}";
-        hstLabel.text = $"HST:\t{data.runtimeStats.haste}";
-        wisLabel.text = $"WIS:\t{data.runtimeStats.wisdom}";
-        scvLabel.text = $"SCV:\t{data.runtimeStats.scavenge}";
+        strLabel.text = data.runtimeStats.strength.ToString();
+        hstLabel.text = data.runtimeStats.haste.ToString();
+        wisLabel.text = data.runtimeStats.wisdom.ToString();
+        scvLabel.text = data.runtimeStats.scavenge.ToString();
     }
 }

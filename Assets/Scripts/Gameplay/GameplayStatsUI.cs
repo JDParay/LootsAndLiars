@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameplayStatsUI : MonoBehaviour
 {
     public StatBox_Player playerBox;
-    public StatBox[] teammateBoxes; // size 4, in the same order as GameManager.teammates
+    public StatBox[] teammateBoxes;
 
     public Button abandonButton;
     public string shopSceneName = "GameStart";
