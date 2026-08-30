@@ -6,17 +6,16 @@ Characters:
  
 Character sprite sizes:
 large (100x100) 
-small (32x32) - probably no time :skull:
 
 --- ---
 for small sprites, can they all have the same color? in terms of hue
 
 UI: 
 - a 64x64 box i can turn into a 9-slice sprite
-- title screen? *(1600x900) (I'll do a concept of this soon)
+- [X] title screen? *(1600x900) (I'll do a concept of this soon)
 concept: https://drive.google.com/file/d/1aH2tByQSH0vheg1esz2fuVVvsFYf7Rum/view?usp=sharing
 
-[ ] shop assets (150x150 all):
+[X] shop assets (150x150 all):
 [X] potion - red [X], yellow [X], lime [X], and violet [X] (same bottle for all, literally just change the color)
 
 [X] potion+ - same colors, same bottles, add sparkles outside bottle
