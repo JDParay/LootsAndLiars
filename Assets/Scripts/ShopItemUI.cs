@@ -25,6 +25,7 @@ public class ShopItemUI : MonoBehaviour
         shopManager = manager;
 
         buyLabel.text = $"Buy it for...";
+        buyButton.interactable = true;
         itemNameLabel.text = item.itemName;
         characterPopup.SetActive(false);
 
@@ -84,6 +85,13 @@ public class ShopItemUI : MonoBehaviour
             buyButton.interactable = false;
             buyLabel.text = "Purchased";
         }
+    }
+
+    public void RefreshPurchaseDisplay()
+    {
+        bool hasAnyPurchased = shopManager.IsPurchasedByAnyCharacter(itemData);
+        buyButton.interactable = !hasAnyPurchased;
+        buyLabel.text = hasAnyPurchased ? "Purchased" : "Buy it for...";
     }
 
     public void OnPointerEnter(PointerEventData eventData)

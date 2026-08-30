@@ -14,6 +14,7 @@ public class ShopMngr : MonoBehaviour
     private int currentGold;
 
     public TMP_Text goldLabel;
+    public Button refundButton;
     public List<ShopItemData> availableItems;
     public Transform itemListParent;
     public GameObject itemButtonPrefab;
@@ -24,6 +25,7 @@ public class ShopMngr : MonoBehaviour
     public CharacterChecker characterChecker;
 
     private List<ShopItemUI> spawnedItems = new List<ShopItemUI>();
+    private readonly Dictionary<ShopItemData, HashSet<CharacterData>> purchasedItemsByCharacter = new Dictionary<ShopItemData, HashSet<CharacterData>>();
 
     void Start()
     {
@@ -36,6 +38,12 @@ public class ShopMngr : MonoBehaviour
 
         RefreshGoldLabel();
         PopulateShop();
+
+        if (refundButton != null)
+        {
+            refundButton.onClick.AddListener(OnRefundAllClicked);
+            refundButton.interactable = false;
+        }
 
         if (characterChecker != null)
         {
@@ -78,8 +86,45 @@ public class ShopMngr : MonoBehaviour
         }
     }
 
+    public bool HasPurchased(ShopItemData item, CharacterData target)
+    {
+        if (item == null || target == null)
+        {
+            return false;
+        }
+
+        if (!purchasedItemsByCharacter.TryGetValue(item, out var purchasedTargets))
+        {
+            return false;
+        }
+
+        return purchasedTargets.Contains(target);
+    }
+
+    public bool IsPurchasedByAnyCharacter(ShopItemData item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        return purchasedItemsByCharacter.TryGetValue(item, out var purchasedTargets) && purchasedTargets.Count > 0;
+    }
+
     public bool TryPurchase(ShopItemData item, CharacterData target)
     {
+        if (target == null)
+        {
+            Debug.Log("No target selected");
+            return false;
+        }
+
+        if (HasPurchased(item, target))
+        {
+            Debug.Log("This character already owns this item");
+            return false;
+        }
+
         if (currentGold < item.cost)
         {
             Debug.Log("Not enough gold");
@@ -92,19 +137,76 @@ public class ShopMngr : MonoBehaviour
             target.runtimeStats.Add(stat, item.amountPerStat);
         }
 
+        if (!purchasedItemsByCharacter.TryGetValue(item, out var purchasedTargets))
+        {
+            purchasedTargets = new HashSet<CharacterData>();
+            purchasedItemsByCharacter[item] = purchasedTargets;
+        }
+
+        purchasedTargets.Add(target);
+
         RefreshGoldLabel();
+        UpdateRefundButtonState();
 
         if (characterChecker != null)
         {
             characterChecker.RefreshDisplay();
         }
 
+        foreach (var spawnedItem in spawnedItems)
+        {
+            spawnedItem.RefreshPurchaseDisplay();
+        }
+
         return true;
+    }
+
+    public void OnRefundAllClicked()
+    {
+        int refundTotal = 0;
+        foreach (var pair in purchasedItemsByCharacter)
+        {
+            refundTotal += pair.Key.cost * pair.Value.Count;
+        }
+
+        foreach (var teammate in teammates)
+        {
+            if (teammate != null)
+            {
+                teammate.ResetRuntimeStats();
+            }
+        }
+
+        currentGold += refundTotal;
+        purchasedItemsByCharacter.Clear();
+
+        RefreshGoldLabel();
+        UpdateRefundButtonState();
+
+        if (characterChecker != null)
+        {
+            characterChecker.RefreshDisplay();
+        }
+
+        foreach (var spawnedItem in spawnedItems)
+        {
+            spawnedItem.RefreshPurchaseDisplay();
+        }
+    }
+
+    void UpdateRefundButtonState()
+    {
+        if (refundButton == null)
+        {
+            return;
+        }
+
+        refundButton.interactable = purchasedItemsByCharacter.Count > 0;
     }
 
     void RefreshGoldLabel()
     {
-        goldLabel.text = $"Gold: {currentGold}";
+        goldLabel.text = $"{currentGold} GOLD";
     }
 
     public int GetRemainingGold() => currentGold;
@@ -117,5 +219,10 @@ public class ShopMngr : MonoBehaviour
     public void ClearDescription()
     {
         itemDescriptionText.text = "Hover an item to see its effect!";
+    }
+
+    public void OnBackClicked()
+    {
+        SceneManager.LoadScene("Menu");
     }
 }
