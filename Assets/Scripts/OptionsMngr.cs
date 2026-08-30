@@ -11,9 +11,16 @@ public class OptionsMngr : MonoBehaviour
 
     void Start()
 {
-    bgmSlider.value = PlayerPrefs.GetFloat("BGMVolume", 0.75f);
-    sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 0.75f);
-    fullscreenToggle.isOn = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+    float savedBGM = PlayerPrefs.GetFloat("Param_BGM", 0.75f);
+    float savedSFX = PlayerPrefs.GetFloat("Param_SFX", 0.75f);
+    bool savedFullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+
+    bgmSlider.value = savedBGM;
+    sfxSlider.value = savedSFX;
+    fullscreenToggle.SetIsOnWithoutNotify(savedFullscreen);
+
+    ApplyBGMVolume(savedBGM);
+    ApplySFXVolume(savedSFX);
 
     bgmSlider.onValueChanged.AddListener(ApplyBGMVolume);
     sfxSlider.onValueChanged.AddListener(ApplySFXVolume);

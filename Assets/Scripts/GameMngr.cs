@@ -14,13 +14,19 @@ public class GameMngr : MonoBehaviour
     public bool hasCompletedFirstPhase2 = false;
     public bool hasKickedToday = false;
     public List<CharacterData> kickedMembers = new List<CharacterData>();
-    public UnityEvent<int, int> OnTrustChanged;   
+    public UnityEvent<int, int> OnTrustChanged;
+    public UnityEvent<int> OnGoldChanged;   
     public UnityEvent OnTrustDepleted;            
     private bool trustDepletedFired = false;
     public int trust = 10;
     public int trustCap = 20;
     public int gold = 2000;
     public int currentDay = 0;
+    
+    [Header("Endings")]
+    public string loseSceneName = "GameOver";
+    public string winSceneName = "GameWon";
+    
 
     void Awake()
     {
@@ -33,17 +39,25 @@ public class GameMngr : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-        public void InitFromShop(List<CharacterData> shopTeammates, StatBlock finalPlayerStats)
+    public void InitFromShop(List<CharacterData> shopTeammates, StatBlock finalPlayerStats)
     {
         teammates = shopTeammates;
         playerStats = finalPlayerStats;
-        currentDay = 0;
+        currentDay = 0;              
         trust = 10;
-        gold = 2000;
         markedTonight.Clear();
+        kickedMembers.Clear();       
+        hasKickedToday = false;      
+        hasCompletedFirstPhase2 = false;
         AssignImposters();
-        OnTrustChanged?.Invoke(trust, trustCap);   
-        trustDepletedFired = false;                
+        OnTrustChanged?.Invoke(trust, trustCap);
+        trustDepletedFired = false;
+    }
+
+    public void SetStartingGold(int amount)
+    {
+        gold = amount;
+        OnGoldChanged?.Invoke(gold);
     }
 
     void AssignImposters()
@@ -54,9 +68,23 @@ public class GameMngr : MonoBehaviour
         imposters.Add(shuffled[1]);
     }
 
+    public int ApplyImposterTheft()
+    {
+        var activeImposters = imposters.Where(imp => !IsKicked(imp)).ToList();
+        if (activeImposters.Count == 0) return 0;
+
+        int totalStat = activeImposters.Sum(imp => imp.runtimeStats.haste + imp.runtimeStats.scavenge);
+        int deduction = totalStat * 60;
+
+        AddGold(-deduction);   
+        AdjustTrust(-1);
+
+        return deduction;
+    }
+
     public bool IsImposter(CharacterData character) => imposters.Contains(character);
 
-        public void AdjustTrust(int amount)
+    public void AdjustTrust(int amount)
     {
         trust = Mathf.Clamp(trust + amount, 0, trustCap);
         OnTrustChanged?.Invoke(trust, trustCap);
@@ -65,12 +93,14 @@ public class GameMngr : MonoBehaviour
         {
             trustDepletedFired = true;
             OnTrustDepleted?.Invoke();
+            TriggerLoseEnding();
         }
     }
 
     public void AddGold(int amount)
     {
         gold += amount;
+        OnGoldChanged?.Invoke(gold);
     }
 
     public void MarkSuspect(CharacterData character)
@@ -93,4 +123,14 @@ public class GameMngr : MonoBehaviour
     }
 
     public bool IsKicked(CharacterData character) => kickedMembers.Contains(character);
+
+    public void TriggerLoseEnding()
+    {
+        SceneFader.Instance.FadeToScene(loseSceneName);
+    }
+
+    public void TriggerWinEnding()
+    {
+        SceneFader.Instance.FadeToScene(winSceneName);
+    }
 }

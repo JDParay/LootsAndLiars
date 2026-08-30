@@ -16,9 +16,14 @@ public class Phase1 : MonoBehaviour
     public TMP_Text actionButtonLabel;
     public Button kickButton;
 
+    [Header("Next Button Box")]
+    public GameObject nextButtonBox;
+    public Button nextButton; 
+
     [Header("Task Sequence UI")]
     public GameObject taskUIRoot;
     public GameObject doingTaskText;
+    public TMP_Text doingTaskLabel;
     public TaskTimerUI timerUI;
 
     [Header("Log")]
@@ -41,6 +46,8 @@ public class Phase1 : MonoBehaviour
         "Eyes watch from the shadowy treeline beyond the road."
     };
     private Coroutine flavorLoopHandle;
+    private Coroutine dotsAnimHandle;
+    private string baseDoingTaskPhrase = "Ongoing tasks";
 
     private List<CharacterData> roster;
     private List<string> allNames;
@@ -56,6 +63,10 @@ public class Phase1 : MonoBehaviour
 
         actionButton.onClick.AddListener(OnSubmitPressed);
         actionButtonLabel.text = "Submit";
+
+        nextButton.onClick.AddListener(GoToPhase2);   
+        nextButtonBox.SetActive(false);
+        nextButton.interactable = false;               
 
         logBox.Log($"---- Day {GameMngr.Instance.currentDay + 1} ----");
 
@@ -205,12 +216,17 @@ public class Phase1 : MonoBehaviour
 
     IEnumerator RunTaskSequence()
     {
+        actionBox1.SetActive(false);
         taskUIRoot.SetActive(false);
         doingTaskText.SetActive(true);
+
+        nextButtonBox.SetActive(true);
+        nextButton.interactable = false;
 
         logBox.Log("Tasks submitted. Resolving assignments...");
 
         flavorLoopHandle = StartCoroutine(FlavorLineLoop());
+        dotsAnimHandle = StartCoroutine(AnimateDots());  
 
         yield return StartCoroutine(timerUI.RunTimer(displaySeconds: 20, realSeconds: 10));
 
@@ -220,10 +236,16 @@ public class Phase1 : MonoBehaviour
             flavorLoopHandle = null;
         }
 
+        if (dotsAnimHandle != null)
+        {
+            StopCoroutine(dotsAnimHandle);
+            dotsAnimHandle = null;
+        }
+
         doingTaskText.SetActive(false);
 
         ResolveAllTasks();
-        ShowPhase2Button();
+        nextButton.interactable = true;
     }
 
     IEnumerator FlavorLineLoop()
@@ -232,6 +254,19 @@ public class Phase1 : MonoBehaviour
         {
             yield return new WaitForSeconds(Random.Range(1.5f, 3f));
             logBox.Log(flavorLines[Random.Range(0, flavorLines.Length)]);
+        }
+    }
+
+    IEnumerator AnimateDots()
+    {
+        string[] dotStates = { ".", "..", "..." };
+        int index = 0;
+
+        while (true)
+        {
+            doingTaskLabel.text = baseDoingTaskPhrase + dotStates[index];
+            index = (index + 1) % dotStates.Length;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -296,15 +331,29 @@ public class Phase1 : MonoBehaviour
     }
 
     void ResolveFight(TaskSlot task, List<string> names)
-    {
-        float estimated = GetEstimatedTime(task, names);
-        float totalStr = names.Sum(n => GetEffectiveStat(n, StatType.Strength));
-        float finished = Mathf.Max(0f, task.baseSeconds - totalStr);
-        TrackTier(GetTier(task.baseSeconds, finished));
+{
+    float estimated = GetEstimatedTime(task, names);
+    float totalStr = names.Sum(n => GetEffectiveStat(n, StatType.Strength));
+    float finished = Mathf.Max(0f, task.baseSeconds - totalStr);
+    TaskTier tier = GetTier(task.baseSeconds, finished);
+    TrackTier(tier);
 
-        logBox.Log($"Fight Monsters ({task.baseSeconds}s -> {estimated:0}s)");
-        logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
+    int goldChange = 0;
+    if (tier == TaskTier.Fail)
+    {
+        goldChange = -240;
+        GameMngr.Instance.AddGold(goldChange);
     }
+    else
+    {
+        goldChange = 895;
+        GameMngr.Instance.AddGold(goldChange);
+    }
+
+    logBox.Log($"Fight Monsters ({task.baseSeconds}s -> {estimated:0}s)");
+    logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
+    logBox.Log($"└ Outcome: {GetTierFeedback(tier)} ({(goldChange >= 0 ? "+" : "")}{goldChange} Gold)");
+}
 
     void ResolveLoot(TaskSlot task, List<string> names)
     {
@@ -312,17 +361,25 @@ public class Phase1 : MonoBehaviour
         float totalWis = names.Sum(n => GetEffectiveStat(n, StatType.Wisdom));
         float totalScv = names.Sum(n => GetEffectiveStat(n, StatType.Scavenge));
         float finished = Mathf.Max(0f, task.baseSeconds - totalWis);
-        TrackTier(GetTier(task.baseSeconds, finished));
+        TaskTier tier = GetTier(task.baseSeconds, finished);
+        TrackTier(tier);
+
+        int baseGold = (tier == TaskTier.Fail) ? -240 : 895;
+        GameMngr.Instance.AddGold(baseGold);
 
         float chestChance = 0.5f + (totalScv / 100f);
-        int gold = 0;
-        if (Random.value < chestChance) gold = Random.Range(200, 601);
+        int bonusGold = 0;
+        if (Random.value < chestChance) bonusGold = Random.Range(200, 601);
 
-        GameMngr.Instance.AddGold(gold);
+        if (bonusGold > 0) GameMngr.Instance.AddGold(bonusGold);
 
         logBox.Log($"Collect Supplies ({task.baseSeconds}s -> {estimated:0}s)");
         logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
-        logBox.Log($"└ Loot recovered: {gold} Gold");
+        logBox.Log($"└ Outcome: {GetTierFeedback(tier)} ({(baseGold >= 0 ? "+" : "")}{baseGold} Gold)");
+        if (bonusGold > 0)
+        {
+            logBox.Log($"└ Bonus Chest: +{bonusGold} Gold");
+        }
     }
 
     void ResolveWagon(TaskSlot task, List<string> names)
@@ -331,7 +388,11 @@ public class Phase1 : MonoBehaviour
         string primaryWorker = names.Count > 0 ? names[0] : "";
         float haste = string.IsNullOrEmpty(primaryWorker) ? 0 : GetEffectiveStat(primaryWorker, StatType.Haste);
         float finished = Mathf.Max(0f, task.baseSeconds - haste);
-        TrackTier(GetTier(task.baseSeconds, finished));
+        TaskTier tier = GetTier(task.baseSeconds, finished);
+        TrackTier(tier);
+
+        if (tier == TaskTier.Fail)
+            GameMngr.Instance.AddGold(-240);
 
         string condition;
         if (haste >= 4) condition = "fixed (100%)";
@@ -341,7 +402,19 @@ public class Phase1 : MonoBehaviour
 
         logBox.Log($"Fix Wagon ({task.baseSeconds}s -> {estimated:0}s)");
         logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
-        logBox.Log($"└ Result: Wagon condition is {condition}");
+        logBox.Log($"└ Outcome: {GetTierFeedback(tier)} | Condition: {condition}");
+    }
+
+    // Helper method for feedback strings
+    string GetTierFeedback(TaskTier tier)
+    {
+        switch (tier)
+        {
+            case TaskTier.Success: return "Task Successful!";
+            case TaskTier.Mediocre: return "Task Completed (Barely).";
+            case TaskTier.Fail: return "Task Failed!";
+        }
+        return "";
     }
 
     void TrackTier(TaskTier tier)
@@ -391,9 +464,9 @@ public class Phase1 : MonoBehaviour
     void GoToPhase2()
     {
         logBox.Log($"---- Night {GameMngr.Instance.currentDay + 1} ----");
-        DayCycleMngr.Instance.CompletePhase1();   // add this
+        DayCycleMngr.Instance.CompletePhase1();
 
-        actionBox1.SetActive(false);
+        nextButtonBox.SetActive(false); 
         phase2Manager.BeginMarkingPhase(roster, OnPhase2Complete);
     }
 
@@ -401,6 +474,11 @@ public class Phase1 : MonoBehaviour
     {
         GameMngr.Instance.hasCompletedFirstPhase2 = true;
         DayCycleMngr.Instance.CompletePhase2();
+
+        int stolen = GameMngr.Instance.ApplyImposterTheft();
+        if (stolen > 0)
+            logBox.Log($"Overnight, {stolen} Gold was stolen from the party's supplies.");
+
         actionBox1.SetActive(true);
         StartNewDay();
     }
@@ -410,14 +488,12 @@ public class Phase1 : MonoBehaviour
         GameMngr.Instance.currentDay++;
         GameMngr.Instance.hasKickedToday = false;
 
-        logBox.Log($"---- Day {GameMngr.Instance.currentDay + 1} ----");   // add this — after the increment
+        logBox.Log($"---- Day {GameMngr.Instance.currentDay + 1} ----");
 
         RefreshRosterAndDropdowns();
         taskUIRoot.SetActive(true);
+        actionBox1.SetActive(true);   
 
-        actionButtonLabel.text = "Submit";
-        actionButton.onClick.RemoveAllListeners();
-        actionButton.onClick.AddListener(OnSubmitPressed);
         actionButton.interactable = false;
 
         kickButton.interactable = GameMngr.Instance.hasCompletedFirstPhase2 && !GameMngr.Instance.hasKickedToday;

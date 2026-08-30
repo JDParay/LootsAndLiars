@@ -72,7 +72,6 @@ public class Phase2 : MonoBehaviour
             skipToggle.isOn = false;
         }
 
-        // Once 2 are checked, disable the rest so a 3rd can't be picked
         bool atLimit = checkedCount >= 2;
         foreach (var t in suspectToggles)
         {
@@ -95,7 +94,7 @@ public class Phase2 : MonoBehaviour
         if (!skipToggle.isOn)
         {
             var marked = new List<CharacterData>();
-            for (int i = 0; i < roster.Count; i++) // changed from suspectToggles.Length
+            for (int i = 0; i < roster.Count; i++)
             {
                 if (suspectToggles[i].isOn)
                     marked.Add(roster[i]);
@@ -106,8 +105,8 @@ public class Phase2 : MonoBehaviour
                 GameMngr.Instance.MarkSuspect(character);
             }
 
-            GameMngr.Instance.AdjustTrust(-1);
-            logBox.Log($"Marked: {string.Join(", ", marked.Select(c => c.characterName))} (-1 Trust)");
+            GameMngr.Instance.AdjustTrust(-2);
+            logBox.Log($"Marked: {string.Join(", ", marked.Select(c => c.characterName))} (-2 Trust)");
         }
         else
         {

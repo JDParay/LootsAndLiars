@@ -11,7 +11,6 @@ public class ShopMngr : MonoBehaviour
     public string gameplaySceneName = "Gameplay";
     public TMP_Text itemDescriptionText;
     public int startingGold = 2000;
-    private int currentGold;
 
     public TMP_Text goldLabel;
     public Button refundButton;
@@ -29,7 +28,7 @@ public class ShopMngr : MonoBehaviour
 
     void Start()
     {
-        currentGold = startingGold;
+        GameMngr.Instance.SetStartingGold(startingGold);
 
         foreach (var teammate in teammates)
         {
@@ -61,7 +60,7 @@ public class ShopMngr : MonoBehaviour
         if (!statAllocator.AllPelletsSpent()) return;
 
         GameMngr.Instance.InitFromShop(teammates, statAllocator.GetFinalStats());
-        SceneManager.LoadScene(gameplaySceneName);
+        SceneFader.Instance.FadeToScene(gameplaySceneName);
     }
 
     void PopulateShop()
@@ -125,13 +124,13 @@ public class ShopMngr : MonoBehaviour
             return false;
         }
 
-        if (currentGold < item.cost)
+        if (GameMngr.Instance.gold < item.cost)   // changed from: currentGold < item.cost
         {
             Debug.Log("Not enough gold");
             return false;
         }
 
-        currentGold -= item.cost;
+        GameMngr.Instance.AddGold(-item.cost);   // changed from: currentGold -= item.cost;
         foreach (var stat in item.statsAffected)
         {
             target.runtimeStats.Add(stat, item.amountPerStat);
@@ -177,7 +176,7 @@ public class ShopMngr : MonoBehaviour
             }
         }
 
-        currentGold += refundTotal;
+        GameMngr.Instance.AddGold(refundTotal); 
         purchasedItemsByCharacter.Clear();
 
         RefreshGoldLabel();
@@ -206,10 +205,9 @@ public class ShopMngr : MonoBehaviour
 
     void RefreshGoldLabel()
     {
-        goldLabel.text = $"{currentGold} GOLD";
+        goldLabel.text = $"{GameMngr.Instance.gold} GOLD";
     }
-
-    public int GetRemainingGold() => currentGold;
+    public int GetRemainingGold() => GameMngr.Instance.gold;
 
     public void ShowDescription(string description)
     {
