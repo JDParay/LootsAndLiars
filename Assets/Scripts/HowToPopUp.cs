@@ -4,18 +4,20 @@ using UnityEngine.UI;
 public class HowToPopupMngr : MonoBehaviour
 {
     public Button howToButton;
-    public GameObject[] popupPanels;
+    public GameObject[] panels;   // just the popup panels, in order
 
     private int currentIndex = -1;
 
     void Start()
     {
-        foreach (var panel in popupPanels)
-            panel.SetActive(false);
+        foreach (var panel in panels)
+        {
+            SetPanelActive(panel, false);
+        }
 
         howToButton.onClick.AddListener(OpenHowTo);
 
-        foreach (var panel in popupPanels)
+        foreach (var panel in panels)
         {
             Button panelButton = panel.GetComponent<Button>();
             if (panelButton == null)
@@ -29,29 +31,43 @@ public class HowToPopupMngr : MonoBehaviour
     {
         howToButton.interactable = false;
         currentIndex = 0;
-        ShowPopup(currentIndex);
+        ShowStep(currentIndex);
     }
 
-    void ShowPopup(int index)
+    void ShowStep(int index)
     {
-        for (int i = 0; i < popupPanels.Length; i++)
-            popupPanels[i].SetActive(i == index);
+        for (int i = 0; i < panels.Length; i++)
+        {
+            SetPanelActive(panels[i], i == index);
+        }
     }
 
     void AdvancePopup()
     {
         currentIndex++;
 
-        if (currentIndex < popupPanels.Length)
+        if (currentIndex < panels.Length)
         {
-            ShowPopup(currentIndex);
+            ShowStep(currentIndex);
         }
         else
         {
-            foreach (var panel in popupPanels)
-                panel.SetActive(false);
+            foreach (var panel in panels)
+                SetPanelActive(panel, false);
 
             howToButton.interactable = true;
+        }
+    }
+
+    void SetPanelActive(GameObject panel, bool isActive)
+    {
+        panel.SetActive(isActive);
+
+        PopupExtras extras = panel.GetComponent<PopupExtras>();
+        if (extras != null)
+        {
+            foreach (var extra in extras.extraObjects)
+                extra.SetActive(isActive);
         }
     }
 }

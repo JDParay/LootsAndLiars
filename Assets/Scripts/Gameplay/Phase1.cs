@@ -28,14 +28,17 @@ public class Phase1 : MonoBehaviour
     public Phase2 phase2Manager;
     public KickMngr kickManager;
 
-    // ---- Private / internal state below, unchanged ----
+    // ---- Private / internal state below ----
 
     string[] flavorLines = {
-        "The wagon creaks forward...",
-        "Someone mutters under their breath.",
-        "A distant howl echoes through the trees.",
-        "Footsteps crunch over gravel.",
-        "The fire crackles behind you."
+        "The heavy wooden wagon creaks softly as it rolls forward...",
+        "Someone mutters an anxious prayer under their breath.",
+        "A distant howl echoes through the fog-laden trees.",
+        "Heavy footsteps crunch over damp gravel.",
+        "The ember glow of the campfire dies down behind you.",
+        "An uncomfortable silence falls over the party.",
+        "The iron rims of the wheels scrape against sharp stones.",
+        "Eyes watch from the shadowy treeline beyond the road."
     };
     private Coroutine flavorLoopHandle;
 
@@ -46,13 +49,15 @@ public class Phase1 : MonoBehaviour
     private int successCount = 0;
     private int failCount = 0;
 
-    void Start()
+        void Start()
     {
         kickButton.onClick.AddListener(OnKickButtonPressed);
         kickButton.interactable = false;
 
         actionButton.onClick.AddListener(OnSubmitPressed);
         actionButtonLabel.text = "Submit";
+
+        logBox.Log($"---- Day {GameMngr.Instance.currentDay + 1} ----");
 
         RefreshRosterAndDropdowns();
     }
@@ -120,13 +125,8 @@ public class Phase1 : MonoBehaviour
         return character != null ? character.runtimeStats : null;
     }
 
-    void UpdateTaskTimeLabel(TaskSlot task)
+    float GetEstimatedTime(TaskSlot task, List<string> selectedNames)
     {
-        var selectedNames = task.dropdowns
-            .Select(dd => dd.options[dd.value].text)
-            .Where(n => n != "--Select--")
-            .ToList();
-
         float preview = task.baseSeconds;
 
         if (selectedNames.Count > 0)
@@ -148,7 +148,18 @@ public class Phase1 : MonoBehaviour
             }
         }
 
-        task.timeLabel.text = $"{TaskDisplayName(task.type)} ({task.baseSeconds}s) → {preview}s";
+        return preview;
+    }
+
+    void UpdateTaskTimeLabel(TaskSlot task)
+    {
+        var selectedNames = task.dropdowns
+            .Select(dd => dd.options[dd.value].text)
+            .Where(n => n != "--Select--")
+            .ToList();
+
+        float estimated = GetEstimatedTime(task, selectedNames);
+        task.timeLabel.text = $"{TaskDisplayName(task.type)} ({task.baseSeconds}s -> {estimated:0}s)";
     }
 
     string TaskDisplayName(TaskType type)
@@ -156,13 +167,12 @@ public class Phase1 : MonoBehaviour
         switch (type)
         {
             case TaskType.FightMonsters: return "Fight Monsters";
-            case TaskType.CollectLoot: return "Collect Loot/Supplies";
+            case TaskType.CollectLoot: return "Collect Supplies";
             case TaskType.FixWagon: return "Fix Wagon";
         }
         return type.ToString();
     }
 
-    // ---- Validation: now allows exactly (5 - allNames.Count) slots to stay unfilled ----
     bool IsValidAssignment()
     {
         var filledSelections = new List<string>();
@@ -176,8 +186,8 @@ public class Phase1 : MonoBehaviour
             filledSelections.AddRange(filled);
         }
 
-        if (filledSelections.Distinct().Count() != filledSelections.Count) return false; // no duplicates
-        if (filledSelections.Count != allNames.Count) return false; // everyone still in the party must be placed exactly once
+        if (filledSelections.Distinct().Count() != filledSelections.Count) return false;
+        if (filledSelections.Count != allNames.Count) return false;
 
         return true;
     }
@@ -186,7 +196,7 @@ public class Phase1 : MonoBehaviour
     {
         if (!IsValidAssignment())
         {
-            logBox.Log("No more than one name in the tasks.");
+            logBox.Log("Assign each member to a task slot before proceeding.");
             return;
         }
 
@@ -198,7 +208,7 @@ public class Phase1 : MonoBehaviour
         taskUIRoot.SetActive(false);
         doingTaskText.SetActive(true);
 
-        logBox.Log("Tasks submitted. Resolving...");
+        logBox.Log("Tasks submitted. Resolving assignments...");
 
         flavorLoopHandle = StartCoroutine(FlavorLineLoop());
 
@@ -265,29 +275,40 @@ public class Phase1 : MonoBehaviour
 
         foreach (var task in tasks)
         {
-            var names = task.dropdowns.Select(dd => dd.options[dd.value].text).ToList();
+            var rawNames = task.dropdowns.Select(dd => dd.options[dd.value].text).ToList();
+            var validNames = rawNames.Where(n => n != "--Select--").ToList();
 
             switch (task.type)
             {
-                case TaskType.FightMonsters: ResolveFight(task, names); break;
-                case TaskType.CollectLoot: ResolveLoot(task, names); break;
-                case TaskType.FixWagon: ResolveWagon(task, names); break;
+                case TaskType.FightMonsters: ResolveFight(task, validNames); break;
+                case TaskType.CollectLoot: ResolveLoot(task, validNames); break;
+                case TaskType.FixWagon: ResolveWagon(task, validNames); break;
             }
         }
 
         ApplyDayTrust();
     }
 
+    string FormatAssignedMembers(List<string> names)
+    {
+        if (names.Count == 0) return "[ Unassigned ]";
+        return $"[ {string.Join(" | ", names)} ]";
+    }
+
     void ResolveFight(TaskSlot task, List<string> names)
     {
+        float estimated = GetEstimatedTime(task, names);
         float totalStr = names.Sum(n => GetEffectiveStat(n, StatType.Strength));
         float finished = Mathf.Max(0f, task.baseSeconds - totalStr);
         TrackTier(GetTier(task.baseSeconds, finished));
-        logBox.Log($"Fighting Monsters ({task.baseSeconds}s): time finished - {finished:0}s");
+
+        logBox.Log($"Fight Monsters ({task.baseSeconds}s -> {estimated:0}s)");
+        logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
     }
 
     void ResolveLoot(TaskSlot task, List<string> names)
     {
+        float estimated = GetEstimatedTime(task, names);
         float totalWis = names.Sum(n => GetEffectiveStat(n, StatType.Wisdom));
         float totalScv = names.Sum(n => GetEffectiveStat(n, StatType.Scavenge));
         float finished = Mathf.Max(0f, task.baseSeconds - totalWis);
@@ -298,23 +319,29 @@ public class Phase1 : MonoBehaviour
         if (Random.value < chestChance) gold = Random.Range(200, 601);
 
         GameMngr.Instance.AddGold(gold);
-        logBox.Log($"Collecting Loot/Supplies ({task.baseSeconds}s): time finished - {finished:0}s, Loot: {gold} worth of GOLD");
+
+        logBox.Log($"Collect Supplies ({task.baseSeconds}s -> {estimated:0}s)");
+        logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
+        logBox.Log($"└ Loot recovered: {gold} Gold");
     }
 
     void ResolveWagon(TaskSlot task, List<string> names)
     {
-        string name = names[0];
-        float haste = GetEffectiveStat(name, StatType.Haste);
+        float estimated = GetEstimatedTime(task, names);
+        string primaryWorker = names.Count > 0 ? names[0] : "";
+        float haste = string.IsNullOrEmpty(primaryWorker) ? 0 : GetEffectiveStat(primaryWorker, StatType.Haste);
         float finished = Mathf.Max(0f, task.baseSeconds - haste);
         TrackTier(GetTier(task.baseSeconds, finished));
 
         string condition;
         if (haste >= 4) condition = "fixed (100%)";
-        else if (haste >= 2) condition = $"slightly fixed ({Random.Range(60,91)}%)";
-        else if (haste >= 1) condition = $"slightly damaged ({Random.Range(30,51)}%)";
-        else condition = $"badly damaged ({Random.Range(5,21)}%)";
+        else if (haste >= 2) condition = $"partially repaired ({Random.Range(60, 91)}%)";
+        else if (haste >= 1) condition = $"slightly damaged ({Random.Range(30, 51)}%)";
+        else condition = $"badly damaged ({Random.Range(5, 21)}%)";
 
-        logBox.Log($"Wagon - {condition}");
+        logBox.Log($"Fix Wagon ({task.baseSeconds}s -> {estimated:0}s)");
+        logBox.Log($"└ Time spent: {finished:0}s | Assigned: {FormatAssignedMembers(names)}");
+        logBox.Log($"└ Result: Wagon condition is {condition}");
     }
 
     void TrackTier(TaskTier tier)
@@ -330,7 +357,7 @@ public class Phase1 : MonoBehaviour
         if (failCount == 3) trustChange -= 1;
 
         GameMngr.Instance.AdjustTrust(trustChange);
-        logBox.Log($"Trust {(trustChange >= 0 ? "+" : "")}{trustChange}");
+        logBox.Log($"Party Trust Rating: {(trustChange >= 0 ? "+" : "")}{trustChange}");
     }
 
     // ---- Kick handoff ----
@@ -348,9 +375,8 @@ public class Phase1 : MonoBehaviour
         {
             GameMngr.Instance.hasKickedToday = true;
             kickButton.interactable = false;
-            RefreshRosterAndDropdowns(); // roster shrank, rebuild dropdown options + allNames
+            RefreshRosterAndDropdowns();
         }
-        // if backed out (actuallyKicked == false), kickButton stays interactable
     }
 
     // ---- Phase 2 handoff ----
@@ -364,6 +390,9 @@ public class Phase1 : MonoBehaviour
 
     void GoToPhase2()
     {
+        logBox.Log($"---- Night {GameMngr.Instance.currentDay + 1} ----");
+        DayCycleMngr.Instance.CompletePhase1();   // add this
+
         actionBox1.SetActive(false);
         phase2Manager.BeginMarkingPhase(roster, OnPhase2Complete);
     }
@@ -371,6 +400,7 @@ public class Phase1 : MonoBehaviour
     void OnPhase2Complete()
     {
         GameMngr.Instance.hasCompletedFirstPhase2 = true;
+        DayCycleMngr.Instance.CompletePhase2();
         actionBox1.SetActive(true);
         StartNewDay();
     }
@@ -380,7 +410,9 @@ public class Phase1 : MonoBehaviour
         GameMngr.Instance.currentDay++;
         GameMngr.Instance.hasKickedToday = false;
 
-        RefreshRosterAndDropdowns(); // also resets dropdowns to "--Select--" fresh, accounts for any kicks
+        logBox.Log($"---- Day {GameMngr.Instance.currentDay + 1} ----");   // add this — after the increment
+
+        RefreshRosterAndDropdowns();
         taskUIRoot.SetActive(true);
 
         actionButtonLabel.text = "Submit";
